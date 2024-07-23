@@ -88,8 +88,7 @@ local function onChatMessage(player, message)
             local targetCharacter = targetPlayer.Character
 
             -- Check if the Combat tool is in Backpack
-            local backpack = character:FindFirstChildOfClass("Backpack")
-            local combatTool = backpack and backpack:FindFirstChild("Combat")
+            local combatTool = player.Backpack:FindFirstChild("Combat")
             
             if combatTool then
                 -- Equip the combat tool
