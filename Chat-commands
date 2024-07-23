@@ -1,125 +1,64 @@
--- Function to fly
-local function enableFly(player)
-    local character = player.Character
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        local camera = workspace.CurrentCamera
-        local flying = true
-        local flySpeed = 50 -- Speed of the flying movement
+If you’re executing the script directly in Roblox and need it to work with a mobile executor, you’ll want to adjust it for mobile compatibility and ensure it's compatible with your executor. Here's a refined version for mobile use:
 
-        if humanoidRootPart then
-            local flyConnection
+```lua
+local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 
-            -- Update CFrame based on player's look direction
-            flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-                if flying and humanoidRootPart then
-                    local lookDirection = camera.CFrame.LookVector
-                    local moveDirection = Vector3.new(
-                        lookDirection.X,
-                        0,
-                        lookDirection.Z
-                    ).unit
-                    local targetCFrame = humanoidRootPart.CFrame + (moveDirection * flySpeed * 0.1)
-                    humanoidRootPart.CFrame = CFrame.new(targetCFrame.Position, targetCFrame.Position + lookDirection)
-                end
-            end)
+local player = Players.LocalPlayer
+local character = player.Character or player.CharacterAdded:Wait()
+local humanoid = character:WaitForChild("Humanoid")
+local camera = game.Workspace.CurrentCamera
 
-            -- Stop flying when the player's character dies
-            player.Character.Humanoid.Died:Connect(function()
-                flying = false
-                flyConnection:Disconnect()
-            end)
+local flying = false
+local speed = 50
+local flyUpDownSpeed = 30
+
+local function startFlying()
+    if flying then return end
+    flying = true
+
+    RunService.RenderStepped:Connect(function(deltaTime)
+        if flying and character and character:FindFirstChild("HumanoidRootPart") then
+            local rootPart = character.HumanoidRootPart
+            local moveDirection = Vector3.new()
+
+            -- Get movement input
+            local moveForward = (UserInputService.TouchEnabled and UserInputService:IsKeyDown(Enum.KeyCode.W)) and 1 or 
+                                (UserInputService.TouchEnabled and UserInputService:IsKeyDown(Enum.KeyCode.S)) and -1 or 0
+            local moveRight = (UserInputService.TouchEnabled and UserInputService:IsKeyDown(Enum.KeyCode.D)) and 1 or 
+                              (UserInputService.TouchEnabled and UserInputService:IsKeyDown(Enum.KeyCode.A)) and -1 or 0
+            local moveUp = (UserInputService.TouchEnabled and UserInputService:IsKeyDown(Enum.KeyCode.Space)) and 1 or 
+                           (UserInputService.TouchEnabled and UserInputService:IsKeyDown(Enum.KeyCode.LeftShift)) and -1 or 0
+
+            -- Calculate movement vector
+            moveDirection = (camera.CFrame.LookVector * moveForward) + (camera.CFrame.RightVector * moveRight) + (Vector3.new(0, moveUp, 0))
+
+            -- Apply movement
+            rootPart.CFrame = rootPart.CFrame + (moveDirection * speed * deltaTime)
         end
-    end
-end
-
--- Function to handle chat commands
-local function onChatMessage(player, message)
-    local command, arg = message:match("^(%S+)%s*(.*)")
-
-    if command == "!fly" then
-        -- Execute fly command
-        print(player.Name .. " wants to fly.")
-        enableFly(player)
-
-    elseif command == "!teleport" then
-        -- Execute teleport command
-        print(player.Name .. " wants to teleport to " .. arg)
-        local targetPlayer
-        for _, p in ipairs(game.Players:GetPlayers()) do
-            if string.lower(p.Name):sub(1, #arg) == string.lower(arg) then
-                targetPlayer = p
-                break
-            end
-        end
-
-        if targetPlayer and targetPlayer.Character then
-            local targetCharacter = targetPlayer.Character
-            local character = player.Character
-            if character then
-                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart and targetHumanoidRootPart then
-                    humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
-                end
-            end
-        end
-
-    elseif command == "!esp" then
-        -- Execute ESP command
-        print(player.Name .. " wants to enable ESP.")
-        for _, targetPlayer in ipairs(game.Players:GetPlayers()) do
-            if targetPlayer ~= player and targetPlayer.Character then
-                local character = targetPlayer.Character
-                local head = character:FindFirstChild("Head")
-                if head then
-                    -- Remove existing ESP components
-                    for _, v in pairs(head:FindAllChildren()) do
-                        if v:IsA("BillboardGui") or v:IsA("Highlight") then
-                            v:Destroy()
-                        end
-                    end
-
-                    -- Add highlight
-                    local highlight = Instance.new("Highlight")
-                    highlight.Adornee = character
-                    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red fill color
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline color
-                    highlight.Parent = character
-
-                    -- Add BillboardGui for name display
-                    local billboardGui = Instance.new("BillboardGui")
-                    billboardGui.Adornee = head
-                    billboardGui.Size = UDim2.new(0, 100, 0, 50)
-                    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
-                    billboardGui.AlwaysOnTop = true
-
-                    local textLabel = Instance.new("TextLabel")
-                    textLabel.Text = targetPlayer.Name
-                    textLabel.Size = UDim2.new(1, 0, 1, 0)
-                    textLabel.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random color
-                    textLabel.BackgroundTransparency = 1
-                    textLabel.TextScaled = true
-                    textLabel.Font = Enum.Font.SourceSans
-
-                    textLabel.Parent = billboardGui
-                    billboardGui.Parent = head
-                end
-            end
-        end
-    end
-end
-
--- Listen for PlayerAdded event
-game.Players.PlayerAdded:Connect(function(player)
-    player.Chatted:Connect(function(message)
-        onChatMessage(player, message)
     end)
+end
+
+local function stopFlying()
+    flying = false
+end
+
+UserInputService.InputBegan:Connect(function(input, gameProcessed)
+    if not gameProcessed then
+        if input.KeyCode == Enum.KeyCode.E then
+            if flying then
+                stopFlying()
+            else
+                startFlying()
+            end
+        end
+    end
 end)
+```
 
--- For players who are already in the game
-for _, player in ipairs(game.Players:GetPlayers()) do
-    player.Chatted:Connect(function(message)
-        onChatMessage(player, message)
-    end)
-end
+**Notes for Execution:**
+- Ensure that you have access to input handling and `RenderStepped` within your mobile executor.
+- If your executor doesn’t support `UserInputService` the same way as the studio, you might need to adapt input handling or rely on specific executor features.
+
+Make sure to test the script to confirm it behaves as expected in your environment.
