@@ -3,21 +3,24 @@ local function enableFly(player)
     local character = player.Character
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        local camera = workspace.CurrentCamera
+        local flying = true
+        local flySpeed = 50 -- Speed of the flying movement
+
         if humanoidRootPart then
-            local flying = true
-            local flySpeed = 50 -- Speed of the flying movement
             local flyConnection
 
-            -- Update CFrame based on player's input
+            -- Update CFrame based on player's look direction
             flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
                 if flying and humanoidRootPart then
+                    local lookDirection = camera.CFrame.LookVector
                     local moveDirection = Vector3.new(
-                        player.Character:FindFirstChild("Humanoid").MoveDirection.X,
+                        lookDirection.X,
                         0,
-                        player.Character:FindFirstChild("Humanoid").MoveDirection.Z
+                        lookDirection.Z
                     ).unit
                     local targetCFrame = humanoidRootPart.CFrame + (moveDirection * flySpeed * 0.1)
-                    humanoidRootPart.CFrame = CFrame.new(targetCFrame.Position, targetCFrame.Position + moveDirection)
+                    humanoidRootPart.CFrame = CFrame.new(targetCFrame.Position, targetCFrame.Position + lookDirection)
                 end
             end)
 
@@ -94,7 +97,7 @@ local function onChatMessage(player, message)
                     local textLabel = Instance.new("TextLabel")
                     textLabel.Text = targetPlayer.Name
                     textLabel.Size = UDim2.new(1, 0, 1, 0)
-                    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red text color
+                    textLabel.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random color
                     textLabel.BackgroundTransparency = 1
                     textLabel.TextScaled = true
                     textLabel.Font = Enum.Font.SourceSans
