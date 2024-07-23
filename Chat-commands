@@ -29,12 +29,15 @@ local function enableFly(player)
                 flyConnection:Disconnect()
             end)
         end
+    else
+        print("No HumanoidRootPart found in character.")
     end
 end
 
 -- Function to handle chat commands
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
+    print("Command received: " .. (command or "nil") .. " with argument: " .. (arg or "nil"))
 
     if command == "!fly" then
         -- Execute fly command
@@ -111,6 +114,7 @@ end
 
 -- Listen for PlayerAdded event
 game.Players.PlayerAdded:Connect(function(player)
+    print(player.Name .. " joined the game.")
     player.Chatted:Connect(function(message)
         onChatMessage(player, message)
     end)
@@ -118,6 +122,7 @@ end)
 
 -- For players who are already in the game
 for _, player in ipairs(game.Players:GetPlayers()) do
+    print(player.Name .. " is already in the game.")
     player.Chatted:Connect(function(message)
         onChatMessage(player, message)
     end)
