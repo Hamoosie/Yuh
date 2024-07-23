@@ -103,12 +103,12 @@ local function onChatMessage(player, message)
                         local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
                         
                         if humanoidRootPart and targetHumanoidRootPart then
-                            -- Calculate direction to teleport precisely behind the target
-                            local direction = (targetHumanoidRootPart.Position - humanoidRootPart.Position).Unit
-                            local offset = direction * -2 -- Adjust offset distance to stay precisely behind
+                            -- Calculate direction to teleport precisely in front of the target
+                            local direction = (humanoidRootPart.Position - targetHumanoidRootPart.Position).Unit
+                            local offset = direction * 2 -- Adjust offset distance to stay precisely in front
                             local targetPosition = targetHumanoidRootPart.Position + offset
                             
-                            -- Update CFrame to position behind target and face the target
+                            -- Update CFrame to position in front of target and face the target
                             humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
 
                             -- Perform knock action
