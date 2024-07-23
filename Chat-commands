@@ -22,7 +22,10 @@ local function onChatMessage(player, message)
                 end
             end
         else
-            player:SendNotification({Title = "Error", Text = "Player not found!"})
+            -- Notify player if target is not found
+            print("Error: Player not found!")
+            -- Replace with actual error notification if available
+            -- player:SendNotification({Title = "Error", Text = "Player not found!"})
         end
 
     elseif command == "!esp" then
