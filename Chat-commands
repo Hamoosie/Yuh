@@ -6,18 +6,14 @@ local function enableFly(player)
         local camera = workspace.CurrentCamera
         if humanoidRootPart then
             local flying = true
-            local flySpeed = 50 -- Speed of the flying movement
+            local flySpeed = 50 -- Adjust speed as needed
             local flyConnection
 
-            -- Update CFrame based on player's look direction
+            -- Update CFrame based on camera direction
             flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
                 if flying and humanoidRootPart then
                     local lookDirection = camera.CFrame.LookVector
-                    local moveDirection = Vector3.new(
-                        lookDirection.X,
-                        0,
-                        lookDirection.Z
-                    ).unit
+                    local moveDirection = Vector3.new(lookDirection.X, 0, lookDirection.Z).unit
                     local targetCFrame = humanoidRootPart.CFrame + (moveDirection * flySpeed * 0.1)
                     humanoidRootPart.CFrame = CFrame.new(targetCFrame.Position, targetCFrame.Position + lookDirection)
                 end
@@ -29,15 +25,12 @@ local function enableFly(player)
                 flyConnection:Disconnect()
             end)
         end
-    else
-        print("No HumanoidRootPart found in character.")
     end
 end
 
 -- Function to handle chat commands
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
-    print("Command received: " .. (command or "nil") .. " with argument: " .. (arg or "nil"))
 
     if command == "!fly" then
         -- Execute fly command
@@ -92,38 +85,10 @@ local function onChatMessage(player, message)
                     -- Add BillboardGui for name display
                     local billboardGui = Instance.new("BillboardGui")
                     billboardGui.Adornee = head
-                    billboardGui.Size = UDim2.new(0, 100, 0, 50)
+                    billboardGui.Size = UDim2.new(0, 150, 0, 50) -- Adjust size if needed
                     billboardGui.StudsOffset = Vector3.new(0, 2, 0)
                     billboardGui.AlwaysOnTop = true
 
                     local textLabel = Instance.new("TextLabel")
                     textLabel.Text = targetPlayer.Name
-                    textLabel.Size = UDim2.new(1, 0, 1, 0)
-                    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red text color
-                    textLabel.BackgroundTransparency = 1
-                    textLabel.TextScaled = true
-                    textLabel.Font = Enum.Font.SourceSans
-
-                    textLabel.Parent = billboardGui
-                    billboardGui.Parent = head
-                end
-            end
-        end
-    end
-end
-
--- Listen for PlayerAdded event
-game.Players.PlayerAdded:Connect(function(player)
-    print(player.Name .. " joined the game.")
-    player.Chatted:Connect(function(message)
-        onChatMessage(player, message)
-    end)
-end)
-
--- For players who are already in the game
-for _, player in ipairs(game.Players:GetPlayers()) do
-    print(player.Name .. " is already in the game.")
-    player.Chatted:Connect(function(message)
-        onChatMessage(player, message)
-    end)
-end
+                    textLabel.Size​⬤
