@@ -12,11 +12,21 @@ local function createNameTag(character)
         textLabel.Text = character.Name
         textLabel.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))  -- Random color per player
         textLabel.TextStrokeTransparency = 0.8
-        textLabel.TextSize = 14  -- Small text size
+        textLabel.TextSize = 10  -- Smaller text size
         textLabel.BackgroundTransparency = 1
         textLabel.Size = UDim2.new(1, 0, 1, 0)
         textLabel.Parent = billboardGui
     end
+end
+
+local function addESPToCharacter(character)
+    createNameTag(character)
+    local highlight = Instance.new("Highlight")
+    highlight.Adornee = character
+    highlight.Parent = character
+    highlight.FillColor = Color3.fromRGB(0, 0, 0) -- No fill color
+    highlight.OutlineColor = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random outline color per player
+    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Ensure it shows through walls
 end
 
 local function onChatMessage(player, message)
@@ -53,18 +63,15 @@ local function onChatMessage(player, message)
     elseif command == "!esp" then
         -- Execute ESP command
         print(player.Name .. " wants to enable ESP.")
-        -- Example ESP logic
+        -- Apply ESP to all current players
         for _, targetPlayer in ipairs(game.Players:GetPlayers()) do
             if targetPlayer ~= player and targetPlayer.Character then
-                -- Add ESP with name tag
-                createNameTag(targetPlayer.Character)
-                local highlight = Instance.new("Highlight")
-                highlight.Adornee = targetPlayer.Character
-                highlight.Parent = targetPlayer.Character
-                highlight.FillColor = Color3.fromRGB(0, 0, 0) -- No fill color
-                highlight.OutlineColor = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random outline color per player
-                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Ensure it shows through walls
+                addESPToCharacter(targetPlayer.Character)
             end
+            -- Connect CharacterAdded to add ESP to new characters
+            targetPlayer.CharacterAdded:Connect(function(character)
+                addESPToCharacter(character)
+            end)
         end
 
     -- Add more commands as needed
@@ -76,11 +83,19 @@ game.Players.PlayerAdded:Connect(function(player)
     player.Chatted:Connect(function(message)
         onChatMessage(player, message)
     end)
+    -- Connect CharacterAdded to add ESP to the new player's character
+    player.CharacterAdded:Connect(function(character)
+        addESPToCharacter(character)
+    end)
 end)
 
 -- For players who are already in the game
 for _, player in ipairs(game.Players:GetPlayers()) do
     player.Chatted:Connect(function(message)
         onChatMessage(player, message)
+    end)
+    -- Connect CharacterAdded to add ESP to existing players
+    player.CharacterAdded:Connect(function(character)
+        addESPToCharacter(character)
     end)
 end
