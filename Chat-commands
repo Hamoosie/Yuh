@@ -3,26 +3,30 @@ local function enableFly(player)
     local character = player.Character
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+        local flying = true
+        local flySpeed = 50
+        
         if humanoidRootPart then
-            local flying = true
-            local flySpeed = 1
-            local flyHeight = 50
-            humanoidRootPart.CFrame = humanoidRootPart.CFrame + Vector3.new(0, flyHeight, 0)
+            humanoidRootPart.Anchored = false
             local flyConnection
-            flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-                if not flying then
-                    flyConnection:Disconnect()
-                else
-                    local moveDirection = Vector3.new(
-                        player:FindFirstChild("Humanoid").MoveDirection.X,
-                        0,
-                        player:FindFirstChild("Humanoid").MoveDirection.Z
-                    ).unit
-                    humanoidRootPart.CFrame = humanoidRootPart.CFrame + moveDirection * flySpeed
+
+            local function onMove()
+                if flying then
+                    local moveDirection = player.Character.Humanoid.MoveDirection
+                    if moveDirection.Magnitude > 0 then
+                        humanoidRootPart.Velocity = moveDirection * flySpeed
+                    else
+                        humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
+                    end
                 end
-            end)
+            end
+
+            flyConnection = game:GetService("RunService").RenderStepped:Connect(onMove)
+
             player.Character.Humanoid.Died:Connect(function()
                 flying = false
+                flyConnection:Disconnect()
+                humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
             end)
         end
     end
@@ -68,6 +72,12 @@ local function onChatMessage(player, message)
                 local character = targetPlayer.Character
                 local head = character:FindFirstChild("Head")
                 if head then
+                    local highlight = Instance.new("Highlight")
+                    highlight.Adornee = character
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red color
+                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline
+                    highlight.Parent = character
+
                     local billboardGui = Instance.new("BillboardGui")
                     billboardGui.Adornee = head
                     billboardGui.Size = UDim2.new(0, 50, 0, 50)
