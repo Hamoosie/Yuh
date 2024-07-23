@@ -1,134 +1,137 @@
--- Function to handle teleport
-local function teleportToPlayer(player, partialName)
-    local foundPlayer = nil
-    partialName = partialName:lower()
-
-    for _, p in ipairs(game.Players:GetPlayers()) do
-        if string.sub(p.Name:lower(), 1, #partialName) == partialName then
-            foundPlayer = p
-            break
-        end
-    end
-
-    if foundPlayer then
-        local character = player.Character
-        local targetCharacter = foundPlayer.Character
-
-        if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-            local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1
-            character:SetPrimaryPartCFrame(CFrame.new(targetPosition, targetCharacter.HumanoidRootPart.Position))
-        end
-    else
-        -- Notify player if target is not found
-        print("Error: Player not found!")
-        -- Replace with actual error notification if available
-    end
-end
-
--- Function to activate combat tool
-local function activateCombatTool(player)
-    local backpack = player.Backpack
-    local tool = backpack:FindFirstChild("Combat")
-    if tool then
-        tool.Parent = player.Character
-        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-        if humanoid then
-            humanoid:EquipTool(tool)
-        end
-    end
-end
-
--- Function to handle knock
-local function knockBehindPlayer(player, targetPlayer)
-    activateCombatTool(player)
-    local knockActive = true
-
-    while knockActive and targetPlayer do
-        local character = player.Character
-        local targetCharacter = targetPlayer.Character
-
-        if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-            local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1
-            character:SetPrimaryPartCFrame(CFrame.new(targetPosition, targetCharacter.HumanoidRootPart.Position))
-            wait(0.1)
-            local args = { [1] = "ChargeButton" }
-            game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
-        else
-            knockActive = false
-        end
-
-        -- Stop knocking if target player is knocked down
-        if targetCharacter:FindFirstChildOfClass("Humanoid").Health < 10 then
-            knockActive = false
-        end
-    end
-end
-
--- Function to handle auto stomp
-local autoStompActive = false
-local function startAutoStomp(player)
-    autoStompActive = true
-    while autoStompActive do
-        local args = { [1] = "Stomp" }
-        game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
-        wait(0.5)
-    end
-end
-
--- Function to toggle view
-local function toggleView(player, partialName)
-    local foundPlayer = nil
-    partialName = partialName:lower()
-
-    for _, p in ipairs(game.Players:GetPlayers()) do
-        if string.sub(p.Name:lower(), 1, #partialName) == partialName then
-            foundPlayer = p
-            break
-        end
-    end
-
-    if foundPlayer then
-        local character = player.Character
-        local targetCharacter = foundPlayer.Character
-        if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
-            game.Workspace.CurrentCamera.CameraSubject = targetCharacter:FindFirstChild("Humanoid") or targetCharacter
-        end
-    else
-        game.Workspace.CurrentCamera.CameraSubject = player.Character
-    end
-end
-
--- Function to handle chat commands
+-- Create a function to handle chat commands
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
+    local knockActive = false
+    local autoStompActive = false
+    local targetPlayer = nil
+    local spectating = false
 
     if command == "!teleport" then
-        teleportToPlayer(player, arg)
+        -- Execute teleport command
+        local foundPlayer = nil
+        local partialName = arg:lower()
 
-    elseif command == "!knock" then
-        local targetPlayer = nil
         for _, p in ipairs(game.Players:GetPlayers()) do
-            if p.Name:lower():find(arg:lower()) then
-                targetPlayer = p
+            if string.sub(p.Name:lower(), 1, #partialName) == partialName then
+                foundPlayer = p
                 break
             end
         end
-        if targetPlayer then
-            knockBehindPlayer(player, targetPlayer)
+
+        if foundPlayer then
+            local character = player.Character
+            local targetCharacter = foundPlayer.Character
+
+            if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1
+                character:SetPrimaryPartCFrame(CFrame.new(targetPosition, targetCharacter.HumanoidRootPart.Position))
+            end
+        else
+            -- Notify player if target is not found
+            print("Error: Player not found!")
         end
+
+    elseif command == "!knock" then
+        local foundPlayer = nil
+        local partialName = arg:lower()
+
+        for _, p in ipairs(game.Players:GetPlayers()) do
+            if string.sub(p.Name:lower(), 1, #partialName) == partialName then
+                foundPlayer = p
+                break
+            end
+        end
+
+        if foundPlayer then
+            targetPlayer = foundPlayer
+            knockActive = true
+
+            local function knockBehindPlayer()
+                local backpack = player.Backpack
+                local tool = backpack:FindFirstChild("Combat")
+                if tool then
+                    tool.Parent = player.Character
+                    local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                    if humanoid then
+                        humanoid:EquipTool(tool)
+                    end
+                end
+
+                while knockActive and targetPlayer do
+                    local character = player.Character
+                    local targetCharacter = targetPlayer.Character
+
+                    if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                        local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1
+                        character:SetPrimaryPartCFrame(CFrame.new(targetPosition, targetCharacter.HumanoidRootPart.Position))
+                        wait(0.1)
+                        local args = { [1] = "ChargeButton" }
+                        game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
+                    else
+                        break
+                    end
+
+                    -- Stop knocking if target player is knocked down
+                    if targetCharacter:FindFirstChildOfClass("Humanoid").Health < 10 then
+                        knockActive = false
+                    end
+                end
+            end
+
+            knockBehindPlayer()
+        else
+            print("Error: Player not found!")
+        end
+
+    elseif command == "!unknock" then
+        knockActive = false
 
     elseif command == "!autostomp" then
         autoStompActive = true
-        startAutoStomp(player)
+        while autoStompActive do
+            local args = { [1] = "Stomp" }
+            game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
+            wait(0.5)
+        end
 
     elseif command == "!unautostomp" then
         autoStompActive = false
 
     elseif command == "!view" then
-        toggleView(player, arg)
+        local foundPlayer = nil
+        local partialName = arg:lower()
+
+        for _, p in ipairs(game.Players:GetPlayers()) do
+            if string.sub(p.Name:lower(), 1, #partialName) == partialName then
+                foundPlayer = p
+                break
+            end
+        end
+
+        if foundPlayer then
+            targetPlayer = foundPlayer
+            local targetCharacter = foundPlayer.Character
+
+            if not spectating then
+                if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                    game.Workspace.CurrentCamera.CameraSubject = targetCharacter:FindFirstChild("Humanoid") or targetCharacter
+                    spectating = true
+                end
+            else
+                game.Workspace.CurrentCamera.CameraSubject = player.Character
+                spectating = false
+            end
+        else
+            targetPlayer = nil
+            if spectating then
+                game.Workspace.CurrentCamera.CameraSubject = player.Character
+                spectating = false
+            end
+        end
 
     elseif command == "!unview" then
         game.Workspace.CurrentCamera.CameraSubject = player.Character
+        spectating = false
 
     elseif command == "!esp" then
         print(player.Name .. " wants to enable ESP.")
