@@ -91,12 +91,15 @@ local function onChatMessage(player, message)
             if character and targetCharacter then
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                 local combatTool = nil
-                
-                -- Search for the tool in the Backpack first
-                for _, item in ipairs(character:FindFirstChildOfClass("Backpack"):GetChildren()) do
-                    if item.Name == "Combat" then
-                        combatTool = item
-                        break
+                local backpack = character:FindFirstChildOfClass("Backpack")
+
+                if backpack then
+                    -- Search for the tool in the Backpack
+                    for _, item in ipairs(backpack:GetChildren()) do
+                        if item.Name == "Combat" then
+                            combatTool = item
+                            break
+                        end
                     end
                 end
                 
@@ -107,7 +110,7 @@ local function onChatMessage(player, message)
                 if humanoid and combatTool then
                     -- Equip the combat tool if not equipped
                     if combatTool.Parent == nil then
-                        combatTool.Parent = character:FindFirstChildOfClass("Backpack")
+                        combatTool.Parent = backpack
                     end
 
                     -- Equip the combat tool
