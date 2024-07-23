@@ -1,80 +1,145 @@
-local function createNameTag(character)
-    local head = character:FindFirstChild("Head")
-    if head then
-        local billboardGui = Instance.new("BillboardGui")
-        billboardGui.Adornee = head
-        billboardGui.Size = UDim2.new(0, 50, 0, 50)  -- Adjust size as needed
-        billboardGui.StudsOffset = Vector3.new(0, 3, 0)  -- Adjust the offset as needed
-        billboardGui.AlwaysOnTop = true
-        billboardGui.Parent = head
+-- Function to handle teleport
+local function teleportToPlayer(player, partialName)
+    local foundPlayer = nil
+    partialName = partialName:lower()
 
-        local textLabel = Instance.new("TextLabel")
-        textLabel.Text = character.Name
-        textLabel.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))  -- Random color per player
-        textLabel.TextStrokeTransparency = 0.8
-        textLabel.TextSize = 10  -- Smaller text size
-        textLabel.BackgroundTransparency = 1
-        textLabel.Size = UDim2.new(1, 0, 1, 0)
-        textLabel.Parent = billboardGui
+    for _, p in ipairs(game.Players:GetPlayers()) do
+        if string.sub(p.Name:lower(), 1, #partialName) == partialName then
+            foundPlayer = p
+            break
+        end
+    end
+
+    if foundPlayer then
+        local character = player.Character
+        local targetCharacter = foundPlayer.Character
+
+        if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1
+            character:SetPrimaryPartCFrame(CFrame.new(targetPosition, targetCharacter.HumanoidRootPart.Position))
+        end
+    else
+        -- Notify player if target is not found
+        print("Error: Player not found!")
+        -- Replace with actual error notification if available
     end
 end
 
-local function addESPToCharacter(character)
-    createNameTag(character)
-    local highlight = Instance.new("Highlight")
-    highlight.Adornee = character
-    highlight.Parent = character
-    highlight.FillColor = Color3.fromRGB(0, 0, 0) -- No fill color
-    highlight.OutlineColor = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random outline color per player
-    highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Ensure it shows through walls
+-- Function to activate combat tool
+local function activateCombatTool(player)
+    local backpack = player.Backpack
+    local tool = backpack:FindFirstChild("Combat")
+    if tool then
+        tool.Parent = player.Character
+        local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            humanoid:EquipTool(tool)
+        end
+    end
 end
 
+-- Function to handle knock
+local function knockBehindPlayer(player, targetPlayer)
+    activateCombatTool(player)
+    local knockActive = true
+
+    while knockActive and targetPlayer do
+        local character = player.Character
+        local targetCharacter = targetPlayer.Character
+
+        if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+            local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1
+            character:SetPrimaryPartCFrame(CFrame.new(targetPosition, targetCharacter.HumanoidRootPart.Position))
+            wait(0.1)
+            local args = { [1] = "ChargeButton" }
+            game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
+        else
+            knockActive = false
+        end
+
+        -- Stop knocking if target player is knocked down
+        if targetCharacter:FindFirstChildOfClass("Humanoid").Health < 10 then
+            knockActive = false
+        end
+    end
+end
+
+-- Function to handle auto stomp
+local autoStompActive = false
+local function startAutoStomp(player)
+    autoStompActive = true
+    while autoStompActive do
+        local args = { [1] = "Stomp" }
+        game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
+        wait(0.5)
+    end
+end
+
+-- Function to toggle view
+local function toggleView(player, partialName)
+    local foundPlayer = nil
+    partialName = partialName:lower()
+
+    for _, p in ipairs(game.Players:GetPlayers()) do
+        if string.sub(p.Name:lower(), 1, #partialName) == partialName then
+            foundPlayer = p
+            break
+        end
+    end
+
+    if foundPlayer then
+        local character = player.Character
+        local targetCharacter = foundPlayer.Character
+        if targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+            game.Workspace.CurrentCamera.CameraSubject = targetCharacter:FindFirstChild("Humanoid") or targetCharacter
+        end
+    else
+        game.Workspace.CurrentCamera.CameraSubject = player.Character
+    end
+end
+
+-- Function to handle chat commands
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
 
     if command == "!teleport" then
-        -- Execute teleport command
-        print(player.Name .. " wants to teleport to " .. arg)
-        local targetPlayer
+        teleportToPlayer(player, arg)
+
+    elseif command == "!knock" then
+        local targetPlayer = nil
         for _, p in ipairs(game.Players:GetPlayers()) do
             if p.Name:lower():find(arg:lower()) then
                 targetPlayer = p
                 break
             end
         end
-        
-        if targetPlayer and targetPlayer.Character then
-            local targetCharacter = targetPlayer.Character
-            local character = player.Character
-            if character then
-                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                if humanoidRootPart and targetHumanoidRootPart then
-                    humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
-                end
-            end
-        else
-            -- Notify player if target is not found
-            print("Error: Player not found!")
-            -- Replace with actual error notification if available
-            -- player:SendNotification({Title = "Error", Text = "Player not found!"})
+        if targetPlayer then
+            knockBehindPlayer(player, targetPlayer)
         end
 
+    elseif command == "!autostomp" then
+        autoStompActive = true
+        startAutoStomp(player)
+
+    elseif command == "!unautostomp" then
+        autoStompActive = false
+
+    elseif command == "!view" then
+        toggleView(player, arg)
+
+    elseif command == "!unview" then
+        game.Workspace.CurrentCamera.CameraSubject = player.Character
+
     elseif command == "!esp" then
-        -- Execute ESP command
         print(player.Name .. " wants to enable ESP.")
-        -- Apply ESP to all current players
         for _, targetPlayer in ipairs(game.Players:GetPlayers()) do
             if targetPlayer ~= player and targetPlayer.Character then
                 addESPToCharacter(targetPlayer.Character)
             end
-            -- Connect CharacterAdded to add ESP to new characters
             targetPlayer.CharacterAdded:Connect(function(character)
                 addESPToCharacter(character)
             end)
         end
-
-    -- Add more commands as needed
     end
 end
 
@@ -83,18 +148,16 @@ game.Players.PlayerAdded:Connect(function(player)
     player.Chatted:Connect(function(message)
         onChatMessage(player, message)
     end)
-    -- Connect CharacterAdded to add ESP to the new player's character
     player.CharacterAdded:Connect(function(character)
         addESPToCharacter(character)
     end)
 end)
 
--- For players who are already in the game
+-- For players already in the game
 for _, player in ipairs(game.Players:GetPlayers()) do
     player.Chatted:Connect(function(message)
         onChatMessage(player, message)
     end)
-    -- Connect CharacterAdded to add ESP to existing players
     player.CharacterAdded:Connect(function(character)
         addESPToCharacter(character)
     end)
