@@ -95,36 +95,39 @@ local function onChatMessage(player, message)
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
                     humanoid:EquipTool(combatTool)
-                    
-                    -- Knock logic with spam and teleport
+
+                    -- Knock logic with spam and precise teleport
                     while true do
-                        -- Move to the target
+                        -- Move to the target's position
                         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
                         local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
                         
                         if humanoidRootPart and targetHumanoidRootPart then
-                            -- Teleport behind the target
+                            -- Teleport right behind the target
                             local direction = (targetHumanoidRootPart.Position - humanoidRootPart.Position).Unit
-                            local targetPosition = targetHumanoidRootPart.Position - direction * 5 -- Adjust distance if needed
+                            local targetPosition = targetHumanoidRootPart.Position - direction * 0.4 -- Adjust distance for precision
                             humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
 
                             -- Perform knock action
-                            wait(0.5) -- Wait for the combat tool to be equipped
+                            wait(0.1) -- Short delay before next attack to spam effectively
 
-                            -- Assuming the tool has an 'Activated' event
-                            local toolActivated = combatTool:FindFirstChild("Activated")
-                            if toolActivated then
-                                toolActivated:Fire() -- Trigger the tool's activation event
-                                print(player.Name .. " knocked " .. targetPlayer.Name)
-                            else
-                                print("Combat tool does not have an 'Activated' event.")
+                            -- Spam knock action
+                            local args = {
+                                [1] = "ChargeButton"
+                            }
+                            game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
+                            
+                            -- Check if target is knocked (low health) and break the loop if so
+                            if targetCharacter:FindFirstChildOfClass("Humanoid") and targetCharacter.Humanoid.Health < 10 then
+                                print(targetPlayer.Name .. " is knocked.")
+                                break
                             end
                         else
                             print("HumanoidRootPart not found.")
                             break
                         end
 
-                        wait(1) -- Wait before the next attack
+                        wait(0.1) -- Fast loop to keep teleporting and attacking
                     end
                 else
                     print("Humanoid not found in character.")
