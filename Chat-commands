@@ -95,42 +95,50 @@ local function onChatMessage(player, message)
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
                     humanoid:EquipTool(combatTool)
-
-                    -- Knock logic with precise teleport and facing
-                    while true do
-                        -- Move to the target's position
-                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                        local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                    
+                    -- Teleport to the target player initially
+                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                    local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                    
+                    if humanoidRootPart and targetHumanoidRootPart then
+                        -- Calculate direction to teleport precisely in front of the target
+                        local direction = (targetHumanoidRootPart.Position - humanoidRootPart.Position).Unit
+                        local offset = direction * -2 -- Negative offset to be in front of the player
+                        local targetPosition = targetHumanoidRootPart.Position + offset
                         
-                        if humanoidRootPart and targetHumanoidRootPart then
-                            -- Calculate direction to teleport precisely in front of the target
-                            local direction = (humanoidRootPart.Position - targetHumanoidRootPart.Position).Unit
-                            local offset = direction * -1 -- Adjust offset distance to stay precisely in front
-                            local targetPosition = targetHumanoidRootPart.Position + offset
-                            
-                            -- Update CFrame to position in front of target and face the target
-                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
+                        -- Teleport in front of target and face the target
+                        humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
 
-                            -- Perform knock action
-                            wait(0.1) -- Short delay before next attack to spam effectively
-
+                        -- Perform knock action
+                        local following = true
+                        while following do
                             -- Spam knock action
+                            wait(0.1) -- Short delay before next attack to spam effectively
+                            
+                            -- Fire the knock action
                             local args = {
                                 [1] = "ChargeButton"
                             }
                             game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
+
+                            -- Update position to follow the target player
+                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
                             
-                            -- Check if target is knocked (low health) and break the loop if so
+                            -- Recalculate new position to stay in front
+                            local newDirection = (targetHumanoidRootPart.Position - humanoidRootPart.Position).Unit
+                            targetPosition = targetHumanoidRootPart.Position + newDirection * -2
+                            
+                            -- Update CFrame to ensure staying in front of the target
+                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
+                            
+                            -- Check if target is knocked (low health) and stop if so
                             if targetCharacter:FindFirstChildOfClass("Humanoid") and targetCharacter.Humanoid.Health < 10 then
                                 print(targetPlayer.Name .. " is knocked.")
-                                break
+                                following = false
                             end
-                        else
-                            print("HumanoidRootPart not found.")
-                            break
                         end
-
-                        wait(0.1) -- Fast loop to keep teleporting and attacking
+                    else
+                        print("HumanoidRootPart not found.")
                     end
                 else
                     print("Humanoid not found in character.")
@@ -145,7 +153,6 @@ local function onChatMessage(player, message)
     elseif command == "!unknock" then
         -- Stop knocking
         print(player.Name .. " stopped knocking.")
-        -- Implement stopping logic if needed
 
     elseif command == "!autostomp" then
         -- Execute autostomp command
