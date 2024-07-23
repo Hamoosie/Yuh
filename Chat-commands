@@ -92,33 +92,42 @@ local function onChatMessage(player, message)
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                 local combatTool = character:FindFirstChild("Combat") -- Changed to "Combat"
                 
-                if humanoid and combatTool then
-                    if combatTool.Parent == nil then
-                        combatTool.Parent = character:FindFirstChildOfClass("Backpack")
-                    end
-                    
-                    -- Equip the combat tool
-                    humanoid:EquipTool(combatTool)
+                if humanoid then
+                    if combatTool then
+                        if combatTool.Parent == nil then
+                            combatTool.Parent = character:FindFirstChildOfClass("Backpack")
+                        end
 
-                    -- Move to the target
-                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                    local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                    
-                    if humanoidRootPart and targetHumanoidRootPart then
-                        humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
+                        -- Equip the combat tool
+                        humanoid:EquipTool(combatTool)
 
-                        -- Perform knock action (Placeholder logic)
-                        wait(0.5) -- Wait for the combat tool to be equipped
-                        -- Simulate knock action: Trigger a simple attack or use the combat tool
-                        combatTool:Activate() -- Assuming the tool has an Activate method
-                        print(player.Name .. " knocked " .. targetPlayer.Name)
+                        -- Move to the target
+                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                        local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                        
+                        if humanoidRootPart and targetHumanoidRootPart then
+                            humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
+
+                            -- Perform knock action (Placeholder logic)
+                            wait(0.5) -- Wait for the combat tool to be equipped
+                            if combatTool:FindFirstChild("Activate") then
+                                combatTool.Activate:Invoke() -- Assuming the tool has an Activate method
+                                print(player.Name .. " knocked " .. targetPlayer.Name)
+                            else
+                                print("Combat tool does not have an Activate method.")
+                            end
+                        else
+                            print("HumanoidRootPart not found.")
+                        end
+                    else
+                        print("Combat tool not found in character.")
                     end
                 else
-                    print("Combat tool not found or humanoid not found.")
+                    print("Humanoid not found in character.")
                 end
+            else
+                print("Target player or character not found.")
             end
-        else
-            print("Target player not found or target has no character.")
         end
 
     elseif command == "!unknock" then
