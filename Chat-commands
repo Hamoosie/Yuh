@@ -105,7 +105,7 @@ local function onChatMessage(player, message)
                         if humanoidRootPart and targetHumanoidRootPart then
                             -- Calculate direction to teleport precisely in front of the target
                             local direction = (humanoidRootPart.Position - targetHumanoidRootPart.Position).Unit
-                            local offset = direction * 2 -- Adjust offset distance to stay precisely in front
+                            local offset = direction * -1 -- Adjust offset distance to stay precisely in front
                             local targetPosition = targetHumanoidRootPart.Position + offset
                             
                             -- Update CFrame to position in front of target and face the target
