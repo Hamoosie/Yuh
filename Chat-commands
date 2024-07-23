@@ -3,13 +3,14 @@ local function createNameTag(character)
     if head then
         local billboardGui = Instance.new("BillboardGui")
         billboardGui.Adornee = head
-        billboardGui.Size = UDim2.new(0, 100, 0, 50)  -- Adjust size as needed
+        billboardGui.Size = UDim2.new(0, 50, 0, 50)  -- Adjust size as needed
         billboardGui.StudsOffset = Vector3.new(0, 3, 0)  -- Adjust the offset as needed
+        billboardGui.AlwaysOnTop = true
         billboardGui.Parent = head
 
         local textLabel = Instance.new("TextLabel")
         textLabel.Text = character.Name
-        textLabel.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))  -- Random color
+        textLabel.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))  -- Random color per player
         textLabel.TextStrokeTransparency = 0.8
         textLabel.TextSize = 14  -- Small text size
         textLabel.BackgroundTransparency = 1
@@ -60,8 +61,9 @@ local function onChatMessage(player, message)
                 local highlight = Instance.new("Highlight")
                 highlight.Adornee = targetPlayer.Character
                 highlight.Parent = targetPlayer.Character
-                highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red color
-                highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline
+                highlight.FillColor = Color3.fromRGB(0, 0, 0) -- No fill color
+                highlight.OutlineColor = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255)) -- Random outline color per player
+                highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop -- Ensure it shows through walls
             end
         end
 
