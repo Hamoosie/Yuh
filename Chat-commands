@@ -103,10 +103,11 @@ local function onChatMessage(player, message)
                         local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
                         
                         if humanoidRootPart and targetHumanoidRootPart then
-                            -- Teleport right behind the target
+                            -- Teleport right behind the target, facing them
                             local direction = (targetHumanoidRootPart.Position - humanoidRootPart.Position).Unit
-                            local targetPosition = targetHumanoidRootPart.Position - direction * 0.4 -- Adjust distance for precision
-                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
+                            local targetPosition = targetHumanoidRootPart.Position - direction * 0.1 -- Adjust distance for precision
+                            local targetLookAt = targetHumanoidRootPart.Position + Vector3.new(0, 0, 1) -- Direction to face
+                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetLookAt)
 
                             -- Perform knock action
                             wait(0.1) -- Short delay before next attack to spam effectively
