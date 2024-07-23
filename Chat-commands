@@ -28,7 +28,7 @@ local function knockBehindPlayer()
 
             if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
                 -- Continuously adjust position behind the target player
-                local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1 -- Adjusted to be more precise
+                local targetPosition = targetCharacter.HumanoidRootPart.Position + targetCharacter.HumanoidRootPart.CFrame.LookVector * -0.1
                 character:SetPrimaryPartCFrame(CFrame.new(targetPosition, targetCharacter.HumanoidRootPart.Position))
                 wait(0.1)
                 local args = {
@@ -48,7 +48,7 @@ end
 -- Function to handle chat commands
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
-    
+
     if command == "!knock" then
         -- Execute knock command
         print(player.Name .. " wants to knock " .. arg)
