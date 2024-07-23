@@ -96,26 +96,35 @@ local function onChatMessage(player, message)
                 if humanoid then
                     humanoid:EquipTool(combatTool)
                     
-                    -- Move to the target
-                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                    local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                    
-                    if humanoidRootPart and targetHumanoidRootPart then
-                        humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
-
-                        -- Perform knock action (Placeholder logic)
-                        wait(0.5) -- Wait for the combat tool to be equipped
+                    -- Knock logic with spam and teleport
+                    while true do
+                        -- Move to the target
+                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                        local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
                         
-                        -- Assuming the tool has an 'Activated' event
-                        local toolActivated = combatTool:FindFirstChild("Activated")
-                        if toolActivated then
-                            toolActivated:Fire() -- Trigger the tool's activation event
-                            print(player.Name .. " knocked " .. targetPlayer.Name)
+                        if humanoidRootPart and targetHumanoidRootPart then
+                            -- Teleport behind the target
+                            local direction = (targetHumanoidRootPart.Position - humanoidRootPart.Position).Unit
+                            local targetPosition = targetHumanoidRootPart.Position - direction * 5 -- Adjust distance if needed
+                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
+
+                            -- Perform knock action
+                            wait(0.5) -- Wait for the combat tool to be equipped
+
+                            -- Assuming the tool has an 'Activated' event
+                            local toolActivated = combatTool:FindFirstChild("Activated")
+                            if toolActivated then
+                                toolActivated:Fire() -- Trigger the tool's activation event
+                                print(player.Name .. " knocked " .. targetPlayer.Name)
+                            else
+                                print("Combat tool does not have an 'Activated' event.")
+                            end
                         else
-                            print("Combat tool does not have an 'Activated' event.")
+                            print("HumanoidRootPart not found.")
+                            break
                         end
-                    else
-                        print("HumanoidRootPart not found.")
+
+                        wait(1) -- Wait before the next attack
                     end
                 else
                     print("Humanoid not found in character.")
@@ -130,6 +139,7 @@ local function onChatMessage(player, message)
     elseif command == "!unknock" then
         -- Stop knocking
         print(player.Name .. " stopped knocking.")
+        -- Implement stopping logic if needed
 
     elseif command == "!autostomp" then
         -- Execute autostomp command
