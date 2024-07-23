@@ -3,30 +3,28 @@ local function enableFly(player)
     local character = player.Character
     if character then
         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        local flying = true
-        local flySpeed = 50
-        
         if humanoidRootPart then
-            humanoidRootPart.Anchored = false
+            local flying = true
+            local flySpeed = 50 -- Speed of the flying movement
             local flyConnection
 
-            local function onMove()
-                if flying then
-                    local moveDirection = player.Character.Humanoid.MoveDirection
-                    if moveDirection.Magnitude > 0 then
-                        humanoidRootPart.Velocity = moveDirection * flySpeed
-                    else
-                        humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
-                    end
+            -- Update CFrame based on player's input
+            flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                if flying and humanoidRootPart then
+                    local moveDirection = Vector3.new(
+                        player.Character:FindFirstChild("Humanoid").MoveDirection.X,
+                        0,
+                        player.Character:FindFirstChild("Humanoid").MoveDirection.Z
+                    ).unit
+                    local targetCFrame = humanoidRootPart.CFrame + (moveDirection * flySpeed * 0.1)
+                    humanoidRootPart.CFrame = CFrame.new(targetCFrame.Position, targetCFrame.Position + moveDirection)
                 end
-            end
+            end)
 
-            flyConnection = game:GetService("RunService").RenderStepped:Connect(onMove)
-
+            -- Stop flying when the player's character dies
             player.Character.Humanoid.Died:Connect(function()
                 flying = false
                 flyConnection:Disconnect()
-                humanoidRootPart.Velocity = Vector3.new(0, 0, 0)
             end)
         end
     end
@@ -72,22 +70,31 @@ local function onChatMessage(player, message)
                 local character = targetPlayer.Character
                 local head = character:FindFirstChild("Head")
                 if head then
+                    -- Remove existing ESP components
+                    for _, v in pairs(head:FindAllChildren()) do
+                        if v:IsA("BillboardGui") or v:IsA("Highlight") then
+                            v:Destroy()
+                        end
+                    end
+
+                    -- Add highlight
                     local highlight = Instance.new("Highlight")
                     highlight.Adornee = character
-                    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red color
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline
+                    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red fill color
+                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline color
                     highlight.Parent = character
 
+                    -- Add BillboardGui for name display
                     local billboardGui = Instance.new("BillboardGui")
                     billboardGui.Adornee = head
-                    billboardGui.Size = UDim2.new(0, 50, 0, 50)
+                    billboardGui.Size = UDim2.new(0, 100, 0, 50)
                     billboardGui.StudsOffset = Vector3.new(0, 2, 0)
                     billboardGui.AlwaysOnTop = true
 
                     local textLabel = Instance.new("TextLabel")
                     textLabel.Text = targetPlayer.Name
                     textLabel.Size = UDim2.new(1, 0, 1, 0)
-                    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0)
+                    textLabel.TextColor3 = Color3.fromRGB(255, 0, 0) -- Red text color
                     textLabel.BackgroundTransparency = 1
                     textLabel.TextScaled = true
                     textLabel.Font = Enum.Font.SourceSans
@@ -97,8 +104,6 @@ local function onChatMessage(player, message)
                 end
             end
         end
-
-    -- Add more commands as needed
     end
 end
 
