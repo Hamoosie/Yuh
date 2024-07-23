@@ -96,18 +96,20 @@ local function onChatMessage(player, message)
                 if humanoid then
                     humanoid:EquipTool(combatTool)
 
-                    -- Knock logic with spam and precise teleport
+                    -- Knock logic with precise teleport and facing
                     while true do
                         -- Move to the target's position
                         local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
                         local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
                         
                         if humanoidRootPart and targetHumanoidRootPart then
-                            -- Teleport right behind the target, facing them
+                            -- Calculate direction to teleport precisely behind the target
                             local direction = (targetHumanoidRootPart.Position - humanoidRootPart.Position).Unit
-                            local targetPosition = targetHumanoidRootPart.Position - direction * 0.1 -- Adjust distance for precision
-                            local targetLookAt = targetHumanoidRootPart.Position + Vector3.new(0, 0, 1) -- Direction to face
-                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetLookAt)
+                            local offset = direction * -2 -- Adjust offset distance to stay precisely behind
+                            local targetPosition = targetHumanoidRootPart.Position + offset
+                            
+                            -- Update CFrame to position behind target and face the target
+                            humanoidRootPart.CFrame = CFrame.new(targetPosition, targetHumanoidRootPart.Position)
 
                             -- Perform knock action
                             wait(0.1) -- Short delay before next attack to spam effectively
