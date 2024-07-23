@@ -1,20 +1,54 @@
+-- Function to add ESP to a character
+local function addESPToCharacter(character)
+    if character:FindFirstChild("HumanoidRootPart") then
+        -- Create a BillboardGui for ESP
+        local billboardGui = Instance.new("BillboardGui")
+        billboardGui.Name = "ESP"
+        billboardGui.AlwaysOnTop = true
+        billboardGui.Size = UDim2.new(0, 100, 0, 100)
+        billboardGui.StudsOffset = Vector3.new(0, 2, 0)
+
+        -- Create a TextLabel for the player's name
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Parent = billboardGui
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.BackgroundTransparency = 1
+        textLabel.Text = character.Name
+        textLabel.TextColor3 = Color3.new(math.random(), math.random(), math.random()) -- Random color
+        textLabel.TextScaled = true
+        textLabel.Font = Enum.Font.SourceSans
+        textLabel.TextSize = 14
+
+        -- Add the BillboardGui to the character
+        billboardGui.Parent = character.HumanoidRootPart
+
+        -- Create a Highlight for outlining the character
+        local highlight = Instance.new("Highlight")
+        highlight.Name = "Outline"
+        highlight.Adornee = character
+        highlight.OutlineColor = Color3.fromRGB(0, 255, 0) -- Change the color as needed
+        highlight.FillColor = Color3.fromRGB(0, 0, 0) -- Optional, set the fill color if needed
+        highlight.Parent = character
+    end
+end
+
 -- Function to handle chat commands
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
-
+    
     if command == "!teleport" then
         -- Execute teleport command
         print(player.Name .. " wants to teleport to " .. arg)
         local targetPlayer = nil
         arg = arg:lower()
-
+        
         for _, p in ipairs(game.Players:GetPlayers()) do
             if p.Name:lower():sub(1, #arg) == arg then
                 targetPlayer = p
                 break
             end
         end
-
+        
         if targetPlayer and targetPlayer.Character then
             local targetCharacter = targetPlayer.Character
             local character = player.Character
@@ -41,46 +75,26 @@ local function onChatMessage(player, message)
         print(player.Name .. " wants to knock " .. arg)
         local targetPlayer = nil
         arg = arg:lower()
-
+        
         for _, p in ipairs(game.Players:GetPlayers()) do
-            if p.Name:lower() == arg then
+            if p.Name:lower():sub(1, #arg) == arg then
                 targetPlayer = p
                 break
             end
         end
-
-        if targetPlayer and targetPlayer.Character then
+        
+        if targetPlayer then
+            -- Knocking logic here
             local character = player.Character
             local targetCharacter = targetPlayer.Character
-
-            if character and targetCharacter then
-                -- Equip the combat tool if not equipped
-                local humanoid = character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    local combatTool = character:FindFirstChild("CombatTool") -- Replace "CombatTool" with the actual tool name if needed
-                    if combatTool and combatTool.Parent == nil then
-                        combatTool.Parent = character:FindFirstChildOfClass("Backpack")
-                    end
-
-                    -- Equip the combat tool
-                    if combatTool then
-                        humanoid:EquipTool(combatTool)
-
-                        -- Move to the target
-                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                        local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                        if humanoidRootPart and targetHumanoidRootPart then
-                            humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
-
-                            -- Perform knock action (Placeholder logic)
-                            wait(0.5) -- Wait for the combat tool to be equipped
-                            -- Add knock action logic here, e.g., simulate attack or use combat tool
-                        end
-                    end
+            if character and targetCharacter and targetCharacter:FindFirstChild("HumanoidRootPart") then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart and targetHumanoidRootPart then
+                    humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
+                    -- Add knock action logic here
                 end
             end
-        else
-            print("Player not found or target has no character.")
         end
 
     elseif command == "!unknock" then
@@ -101,16 +115,17 @@ local function onChatMessage(player, message)
         print(player.Name .. " wants to view " .. arg)
         local targetPlayer = nil
         arg = arg:lower()
-
+        
         for _, p in ipairs(game.Players:GetPlayers()) do
             if p.Name:lower():sub(1, #arg) == arg then
                 targetPlayer = p
                 break
             end
         end
-
-        if targetPlayer and targetPlayer.Character then
+        
+        if targetPlayer then
             -- Viewing logic here
+            local character = player.Character
             local targetCharacter = targetPlayer.Character
             if targetCharacter then
                 game.Workspace.CurrentCamera.CameraSubject = targetCharacter:FindFirstChild("Humanoid") or targetCharacter
@@ -122,4 +137,33 @@ local function onChatMessage(player, message)
         print(player.Name .. " stopped viewing.")
         game.Workspace.CurrentCamera.CameraSubject = player.Character
     end
+end
+
+-- Listen for PlayerAdded event
+game.Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        onChatMessage(player, message)
+    end)
+end)
+
+-- For players who are already in the game
+for _, player in ipairs(game.Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        onChatMessage(player, message)
+    end)
+end
+
+-- Update ESP for new players and character changes
+game.Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function(character)
+        wait(1) -- Ensure character is fully loaded
+        addESPToCharacter(character)
+    end)
+end)
+
+for _, player in ipairs(game.Players:GetPlayers()) do
+    player.CharacterAdded:Connect(function(character)
+        wait(1) -- Ensure character is fully loaded
+        addESPToCharacter(character)
+    end)
 end
