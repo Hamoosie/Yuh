@@ -43,7 +43,7 @@ local function onChatMessage(player, message)
         arg = arg:lower()
 
         for _, p in ipairs(game.Players:GetPlayers()) do
-            if p.Name:lower():sub(1, #arg) == arg then
+            if p.Name:lower() == arg then
                 targetPlayer = p
                 break
             end
@@ -54,32 +54,29 @@ local function onChatMessage(player, message)
             local targetCharacter = targetPlayer.Character
 
             if character and targetCharacter then
-                -- Ensure combat tool is in Backpack
-                local backpack = player.Backpack
-                local combatTool = backpack:FindFirstChild("CombatTool") -- Replace with the actual name
+                -- Equip the combat tool if not equipped
+                local humanoid = character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    local combatTool = character:FindFirstChild("Combat") -- Correct tool name here
+                    if combatTool and combatTool.Parent == nil then
+                        combatTool.Parent = character:FindFirstChildOfClass("Backpack")
+                    end
 
-                if combatTool then
                     -- Equip the combat tool
-                    local characterHumanoid = character:FindFirstChildOfClass("Humanoid")
-                    if characterHumanoid then
-                        characterHumanoid:EquipTool(combatTool)
+                    if combatTool then
+                        humanoid:EquipTool(combatTool)
+
+                        -- Move to the target
+                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                        local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                        if humanoidRootPart and targetHumanoidRootPart then
+                            humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
+
+                            -- Perform knock action (Placeholder logic)
+                            wait(0.5) -- Wait for the combat tool to be equipped
+                            -- Add knock action logic here, e.g., simulate attack or use combat tool
+                        end
                     end
-
-                    -- Move to the target
-                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                    local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                    if humanoidRootPart and targetHumanoidRootPart then
-                        humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
-
-                        -- Perform knock action
-                        wait(0.5) -- Allow time for the combat tool to equip
-
-                        -- Simulate knock action (replace with actual knock logic)
-                        local args = { [1] = "Knock" } -- Adjust the action as needed
-                        game:GetService("ReplicatedStorage"):WaitForChild("MainEvent"):FireServer(unpack(args))
-                    end
-                else
-                    print("Combat tool not found in Backpack.")
                 end
             end
         else
