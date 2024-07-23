@@ -87,43 +87,52 @@ local function onChatMessage(player, message)
             local character = player.Character
             local targetCharacter = targetPlayer.Character
             
-            -- Check if the Combat tool is equipped
+            -- Check if the Combat tool is in the Backpack and equip it
             if character and targetCharacter then
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
-                local combatTool = character:FindFirstChild("Combat") -- Changed to "Combat"
+                local combatTool = nil
                 
-                if humanoid then
-                    if combatTool then
-                        if combatTool.Parent == nil then
-                            combatTool.Parent = character:FindFirstChildOfClass("Backpack")
-                        end
+                -- Search for the tool in the Backpack first
+                for _, item in ipairs(character:FindFirstChildOfClass("Backpack"):GetChildren()) do
+                    if item.Name == "Combat" then
+                        combatTool = item
+                        break
+                    end
+                end
+                
+                if not combatTool then
+                    print("Combat tool not found in Backpack.")
+                end
+                
+                if humanoid and combatTool then
+                    -- Equip the combat tool if not equipped
+                    if combatTool.Parent == nil then
+                        combatTool.Parent = character:FindFirstChildOfClass("Backpack")
+                    end
 
-                        -- Equip the combat tool
-                        humanoid:EquipTool(combatTool)
+                    -- Equip the combat tool
+                    humanoid:EquipTool(combatTool)
 
-                        -- Move to the target
-                        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-                        local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
-                        
-                        if humanoidRootPart and targetHumanoidRootPart then
-                            humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
+                    -- Move to the target
+                    local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                    local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                    
+                    if humanoidRootPart and targetHumanoidRootPart then
+                        humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
 
-                            -- Perform knock action (Placeholder logic)
-                            wait(0.5) -- Wait for the combat tool to be equipped
-                            if combatTool:FindFirstChild("Activate") then
-                                combatTool.Activate:Invoke() -- Assuming the tool has an Activate method
-                                print(player.Name .. " knocked " .. targetPlayer.Name)
-                            else
-                                print("Combat tool does not have an Activate method.")
-                            end
+                        -- Perform knock action (Placeholder logic)
+                        wait(0.5) -- Wait for the combat tool to be equipped
+                        if combatTool:FindFirstChild("Activate") then
+                            combatTool.Activate:Invoke() -- Assuming the tool has an Activate method
+                            print(player.Name .. " knocked " .. targetPlayer.Name)
                         else
-                            print("HumanoidRootPart not found.")
+                            print("Combat tool does not have an Activate method.")
                         end
                     else
-                        print("Combat tool not found in character.")
+                        print("HumanoidRootPart not found.")
                     end
                 else
-                    print("Humanoid not found in character.")
+                    print("Combat tool or Humanoid not found.")
                 end
             else
                 print("Target player or character not found.")
