@@ -57,7 +57,7 @@ local function onChatMessage(player, message)
                 -- Equip the combat tool if not equipped
                 local humanoid = character:FindFirstChildOfClass("Humanoid")
                 if humanoid then
-                    local combatTool = character:FindFirstChild("Combat") -- Correct tool name here
+                    local combatTool = character:FindFirstChild("CombatTool") -- Replace "CombatTool" with the actual tool name if needed
                     if combatTool and combatTool.Parent == nil then
                         combatTool.Parent = character:FindFirstChildOfClass("Backpack")
                     end
