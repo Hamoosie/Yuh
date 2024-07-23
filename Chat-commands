@@ -1,3 +1,23 @@
+local function createNameTag(character)
+    local head = character:FindFirstChild("Head")
+    if head then
+        local billboardGui = Instance.new("BillboardGui")
+        billboardGui.Adornee = head
+        billboardGui.Size = UDim2.new(0, 100, 0, 50)  -- Adjust size as needed
+        billboardGui.StudsOffset = Vector3.new(0, 3, 0)  -- Adjust the offset as needed
+        billboardGui.Parent = head
+
+        local textLabel = Instance.new("TextLabel")
+        textLabel.Text = character.Name
+        textLabel.TextColor3 = Color3.fromRGB(math.random(0, 255), math.random(0, 255), math.random(0, 255))  -- Random color
+        textLabel.TextStrokeTransparency = 0.8
+        textLabel.TextSize = 14  -- Small text size
+        textLabel.BackgroundTransparency = 1
+        textLabel.Size = UDim2.new(1, 0, 1, 0)
+        textLabel.Parent = billboardGui
+    end
+end
+
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
 
@@ -11,6 +31,7 @@ local function onChatMessage(player, message)
                 break
             end
         end
+        
         if targetPlayer and targetPlayer.Character then
             local targetCharacter = targetPlayer.Character
             local character = player.Character
@@ -34,6 +55,8 @@ local function onChatMessage(player, message)
         -- Example ESP logic
         for _, targetPlayer in ipairs(game.Players:GetPlayers()) do
             if targetPlayer ~= player and targetPlayer.Character then
+                -- Add ESP with name tag
+                createNameTag(targetPlayer.Character)
                 local highlight = Instance.new("Highlight")
                 highlight.Adornee = targetPlayer.Character
                 highlight.Parent = targetPlayer.Character
