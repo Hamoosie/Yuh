@@ -1,53 +1,16 @@
--- Function to enable fly
-local function enableFly(player)
-    local character = player.Character
-    if character then
-        local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
-        local camera = workspace.CurrentCamera
-        if humanoidRootPart then
-            local flying = true
-            local flySpeed = 50 -- Adjust speed as needed
-            local flyConnection
-
-            -- Update CFrame based on camera direction
-            flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
-                if flying and humanoidRootPart then
-                    local lookDirection = camera.CFrame.LookVector
-                    local moveDirection = Vector3.new(lookDirection.X, 0, lookDirection.Z).unit
-                    local targetCFrame = humanoidRootPart.CFrame + (moveDirection * flySpeed * 0.1)
-                    humanoidRootPart.CFrame = CFrame.new(targetCFrame.Position, targetCFrame.Position + lookDirection)
-                end
-            end)
-
-            -- Stop flying when the player's character dies
-            player.Character.Humanoid.Died:Connect(function()
-                flying = false
-                flyConnection:Disconnect()
-            end)
-        end
-    end
-end
-
--- Function to handle chat commands
 local function onChatMessage(player, message)
     local command, arg = message:match("^(%S+)%s*(.*)")
 
-    if command == "!fly" then
-        -- Execute fly command
-        print(player.Name .. " wants to fly.")
-        enableFly(player)
-
-    elseif command == "!teleport" then
+    if command == "!teleport" then
         -- Execute teleport command
         print(player.Name .. " wants to teleport to " .. arg)
         local targetPlayer
         for _, p in ipairs(game.Players:GetPlayers()) do
-            if string.lower(p.Name):sub(1, #arg) == string.lower(arg) then
+            if p.Name:lower():find(arg:lower()) then
                 targetPlayer = p
                 break
             end
         end
-
         if targetPlayer and targetPlayer.Character then
             local targetCharacter = targetPlayer.Character
             local character = player.Character
@@ -58,37 +21,38 @@ local function onChatMessage(player, message)
                     humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
                 end
             end
+        else
+            player:SendNotification({Title = "Error", Text = "Player not found!"})
         end
 
     elseif command == "!esp" then
         -- Execute ESP command
         print(player.Name .. " wants to enable ESP.")
+        -- Example ESP logic
         for _, targetPlayer in ipairs(game.Players:GetPlayers()) do
             if targetPlayer ~= player and targetPlayer.Character then
-                local character = targetPlayer.Character
-                local head = character:FindFirstChild("Head")
-                if head then
-                    -- Remove existing ESP components
-                    for _, v in pairs(head:FindAllChildren()) do
-                        if v:IsA("BillboardGui") or v:IsA("Highlight") then
-                            v:Destroy()
-                        end
-                    end
+                local highlight = Instance.new("Highlight")
+                highlight.Adornee = targetPlayer.Character
+                highlight.Parent = targetPlayer.Character
+                highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red color
+                highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline
+            end
+        end
 
-                    -- Add highlight
-                    local highlight = Instance.new("Highlight")
-                    highlight.Adornee = character
-                    highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red fill color
-                    highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline color
-                    highlight.Parent = character
+    -- Add more commands as needed
+    end
+end
 
-                    -- Add BillboardGui for name display
-                    local billboardGui = Instance.new("BillboardGui")
-                    billboardGui.Adornee = head
-                    billboardGui.Size = UDim2.new(0, 150, 0, 50) -- Adjust size if needed
-                    billboardGui.StudsOffset = Vector3.new(0, 2, 0)
-                    billboardGui.AlwaysOnTop = true
+-- Listen for PlayerAdded event
+game.Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        onChatMessage(player, message)
+    end)
+end)
 
-                    local textLabel = Instance.new("TextLabel")
-                    textLabel.Text = targetPlayer.Name
-                    textLabel.Size​⬤
+-- For players who are already in the game
+for _, player in ipairs(game.Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        onChatMessage(player, message)
+    end)
+end
