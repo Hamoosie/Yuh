@@ -1,0 +1,74 @@
+-- Create a function to handle chat commands
+local function onChatMessage(player, message)
+    local command, arg = message:match("^(%S+)%s*(.*)")
+
+    if command == "!fly" then
+        -- Execute fly command
+        print(player.Name .. " wants to fly.")
+        local character = player.Character
+        if character then
+            local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+            if humanoidRootPart then
+                -- Example CFrame fly logic
+                local flying = true
+                local flySpeed = 1
+                local flyHeight = 50
+                humanoidRootPart.CFrame = humanoidRootPart.CFrame + Vector3.new(0, flyHeight, 0)
+                local flyConnection
+                flyConnection = game:GetService("RunService").RenderStepped:Connect(function()
+                    if not flying then
+                        flyConnection:Disconnect()
+                    else
+                        humanoidRootPart.CFrame = humanoidRootPart.CFrame + humanoidRootPart.CFrame.lookVector * flySpeed
+                    end
+                end)
+            end
+        end
+
+    elseif command == "!teleport" then
+        -- Execute teleport command
+        print(player.Name .. " wants to teleport to " .. arg)
+        local targetPlayer = game.Players:FindFirstChild(arg)
+        if targetPlayer and targetPlayer.Character then
+            local targetCharacter = targetPlayer.Character
+            local character = player.Character
+            if character then
+                local humanoidRootPart = character:FindFirstChild("HumanoidRootPart")
+                local targetHumanoidRootPart = targetCharacter:FindFirstChild("HumanoidRootPart")
+                if humanoidRootPart and targetHumanoidRootPart then
+                    humanoidRootPart.CFrame = targetHumanoidRootPart.CFrame
+                end
+            end
+        end
+
+    elseif command == "!esp" then
+        -- Execute ESP command
+        print(player.Name .. " wants to enable ESP.")
+        -- Example ESP logic
+        for _, targetPlayer in ipairs(game.Players:GetPlayers()) do
+            if targetPlayer ~= player and targetPlayer.Character then
+                local highlight = Instance.new("Highlight")
+                highlight.Adornee = targetPlayer.Character
+                highlight.Parent = targetPlayer.Character
+                highlight.FillColor = Color3.fromRGB(255, 0, 0) -- Red color
+                highlight.OutlineColor = Color3.fromRGB(255, 255, 255) -- White outline
+            end
+        end
+
+    -- Add more commands as needed
+    end
+end
+
+-- Listen for PlayerAdded event
+game.Players.PlayerAdded:Connect(function(player)
+    player.Chatted:Connect(function(message)
+        onChatMessage(player, message)
+    end)
+end)
+
+-- For players who are already in the game
+for _, player in ipairs(game.Players:GetPlayers()) do
+    player.Chatted:Connect(function(message)
+        onChatMessage(player, message)
+    end)
+end
