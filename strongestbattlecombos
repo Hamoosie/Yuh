@@ -42,7 +42,7 @@ menuFrame.InputBegan:Connect(function(input)
 end)
 
 menuFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
         dragInput = input
     end
 end)
@@ -82,7 +82,7 @@ local function executeCombo1()
         game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(releaseArgs))
 
         if i == 1 then
-            wait(0.9) -- Updated delay before the second punch
+            wait(0.6) -- Updated delay before the second punch
         else
             wait(0.1) -- Shorter delay for the second release
         end
