@@ -42,7 +42,7 @@ menuFrame.InputBegan:Connect(function(input)
 end)
 
 menuFrame.InputChanged:Connect(function(input)
-    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType.Touch then
         dragInput = input
     end
 end)
@@ -69,16 +69,19 @@ local function executeCombo1()
                 ["Mobile"] = true
             }
         }
+        print("Executing Punch " .. i)
         game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(punchArgs))
-        
+        wait(0.1)
+
         local releaseArgs = {
             [1] = {
                 ["Goal"] = "LeftClickRelease",
                 ["Mobile"] = true
             }
         }
+        print("Executing Release " .. i)
         game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(releaseArgs))
-        wait(0.1) -- Small delay to ensure the command is executed twice
+        wait(0.1)
     end
 end
 
