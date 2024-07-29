@@ -70,6 +70,7 @@ local function executeCombo1()
             }
         }
         game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+        wait(0.1) -- Small delay to ensure the command is executed twice
     end
 
     local args = {
