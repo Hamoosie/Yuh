@@ -71,8 +71,7 @@ local function executeCombo1()
         }
         print("Executing Punch " .. i)
         game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(punchArgs))
-        wait(0.1)
-
+        
         local releaseArgs = {
             [1] = {
                 ["Goal"] = "LeftClickRelease",
@@ -81,7 +80,12 @@ local function executeCombo1()
         }
         print("Executing Release " .. i)
         game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(releaseArgs))
-        wait(0.1)
+
+        if i == 1 then
+            wait(0.5) -- Longer delay before the second punch
+        else
+            wait(0.1) -- Shorter delay for the second release
+        end
     end
 end
 
