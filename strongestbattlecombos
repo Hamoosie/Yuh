@@ -1,0 +1,91 @@
+-- Create Screen GUI
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = game.CoreGui
+
+-- Create Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 100, 0, 50)
+toggleButton.Position = UDim2.new(0, 10, 0, 10)
+toggleButton.Text = "Toggle Menu"
+toggleButton.Parent = screenGui
+
+-- Create Draggable Menu
+local menuFrame = Instance.new("Frame")
+menuFrame.Size = UDim2.new(0, 200, 0, 200)
+menuFrame.Position = UDim2.new(0, 120, 0, 10)
+menuFrame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
+menuFrame.Visible = false
+menuFrame.Parent = screenGui
+
+-- Make the Menu Draggable
+local dragToggle = nil
+local dragInput = nil
+local dragStart = nil
+local startPos = nil
+
+local function updateInput(input)
+    local delta = input.Position - dragStart
+    menuFrame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+end
+
+menuFrame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        dragToggle = true
+        dragStart = input.Position
+        startPos = menuFrame.Position
+        input.Changed:Connect(function()
+            if input.UserInputState == Enum.UserInputState.End then
+                dragToggle = false
+            end
+        end)
+    end
+end)
+
+menuFrame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        dragInput = input
+    end
+end)
+
+game:GetService("UserInputService").InputChanged:Connect(function(input)
+    if input == dragInput and dragToggle then
+        updateInput(input)
+    end
+end)
+
+-- Create Combo 1 Button
+local combo1Button = Instance.new("TextButton")
+combo1Button.Size = UDim2.new(0, 180, 0, 50)
+combo1Button.Position = UDim2.new(0, 10, 0, 10)
+combo1Button.Text = "Execute Combo 1"
+combo1Button.Parent = menuFrame
+
+-- Function to Execute Combo 1
+local function executeCombo1()
+    for i = 1, 2 do
+        local args = {
+            [1] = {
+                ["Goal"] = "LeftClick",
+                ["Mobile"] = true
+            }
+        }
+        game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    end
+
+    local args = {
+        [1] = {
+            ["Goal"] = "LeftClickRelease",
+            ["Mobile"] = true
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+end
+
+combo1Button.MouseButton1Click:Connect(executeCombo1)
+
+-- Toggle Menu Visibility
+local menuVisible = false
+toggleButton.MouseButton1Click:Connect(function()
+    menuVisible = not menuVisible
+    menuFrame.Visible = menuVisible
+end)
