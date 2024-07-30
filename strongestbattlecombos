@@ -63,7 +63,7 @@ gouoComboButton.Parent = menuFrame
 -- Function to Execute Gouo Combo
 local function executeGouoCombo()
     loadstring(game:HttpGet("https://pastebin.com/raw/XcVbJ6PT"))()
-end)
+end
 
 gouoComboButton.MouseButton1Click:Connect(executeGouoCombo)
 
