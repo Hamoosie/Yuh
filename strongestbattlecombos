@@ -11,7 +11,7 @@ toggleButton.Parent = screenGui
 
 -- Create Draggable Menu
 local menuFrame = Instance.new("Frame")
-menuFrame.Size = UDim2.new(0, 200, 0, 200)
+menuFrame.Size = UDim2.new(0, 200, 0, 300) -- Adjust size as needed
 menuFrame.Position = UDim2.new(0, 120, 0, 10)
 menuFrame.BackgroundColor3 = Color3.new(0.5, 0.5, 0.5)
 menuFrame.Visible = false
@@ -62,7 +62,173 @@ gouoComboButton.Parent = menuFrame
 
 -- Function to Execute Gouo Combo
 local function executeGouoCombo()
-    loadstring(game:HttpGet("https://pastebin.com/raw/XcVbJ6PT"))()
+    local args = {
+        [1] = {
+            ["Dash"] = Enum.KeyCode.W,
+            ["Key"] = Enum.KeyCode.Q,
+            ["Goal"] = "KeyPress"
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    function getNil(name,class)
+        for _,v in pairs(getnilinstances())do
+            if v.ClassName==class and v.Name==name then return v;end
+        end
+    end
+
+    local args = {
+        [1] = {
+            ["Goal"] = "delete bv",
+            ["BV"] = getNil("moveme", "BodyVelocity")
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Mobile"] = true,
+            ["Goal"] = "LeftClick"
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    wait(3.4)
+
+    local args = {
+        [1] = {
+            ["Goal"] = "LeftClickRelease",
+            ["Mobile"] = true
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Console Move",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack.Uppercut
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Auto Use End",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack.Uppercut
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    wait(1.8)
+
+    local args = {
+        [1] = {
+            ["Dash"] = Enum.KeyCode.W,
+            ["Key"] = Enum.KeyCode.Q,
+            ["Goal"] = "KeyPress"
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    function getNil(name,class)
+        for _,v in pairs(getnilinstances())do
+            if v.ClassName==class and v.Name==name then return v;end
+        end
+    end
+
+    local args = {
+        [1] = {
+            ["Goal"] = "delete bv",
+            ["BV"] = getNil("moveme", "BodyVelocity")
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Mobile"] = true,
+            ["Goal"] = "LeftClick"
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    wait(2)
+
+    local args = {
+        [1] = {
+            ["Goal"] = "LeftClickRelease",
+            ["Mobile"] = true
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Console Move",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Consecutive Punches")
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Auto Use End",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Consecutive Punches")
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    wait(2)
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Console Move",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack.Shove
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Auto Use End",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack.Shove
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    wait(1.5)
+
+    local args = {
+        [1] = {
+            ["Dash"] = Enum.KeyCode.W,
+            ["Key"] = Enum.KeyCode.Q,
+            ["Goal"] = "KeyPress"
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    function getNil(name,class)
+        for _,v in pairs(getnilinstances())do
+            if v.ClassName==class and v.Name==name then return v;end
+        end
+    end
+
+    local args = {
+        [1] = {
+            ["Goal"] = "delete bv",
+            ["BV"] = getNil("moveme", "BodyVelocity")
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+    wait(1)
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Console Move",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Normal Punch")
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
+
+    local args = {
+        [1] = {
+            ["Goal"] = "Auto Use End",
+            ["Tool"] = game:GetService("Players").LocalPlayer.Backpack:FindFirstChild("Normal Punch")
+        }
+    }
+    game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(args))
 end
 
 gouoComboButton.MouseButton1Click:Connect(executeGouoCombo)
