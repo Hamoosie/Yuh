@@ -81,8 +81,10 @@ local function executeCombo1()
         print("Executing Release " .. i)
         game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(releaseArgs))
 
-        if i < 3 then
-            wait(0.2) -- Delay before the next punch
+        if i == 1 then
+            wait(0.2) -- Delay before the second punch
+        elseif i == 2 then
+            wait(0.4) -- Delay before the third punch
         end
     end
 end
